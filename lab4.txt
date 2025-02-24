@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_PRODUCTIONS 10
+#define MAX_LENGTH 50
+
+void eliminateLeftRecursion(char grammar[MAX_PRODUCTIONS][MAX_LENGTH], int numProds) {
+    for (int i = 0; i < numProds; i++) {
+        char nonTerminal = grammar[i][0];
+        int isLeftRecursive = (grammar[i][2] == nonTerminal);
+        if (isLeftRecursive) {
+            char newNonTerminal = nonTerminal + '1';
+            printf("%c -> %s' | ε\n", nonTerminal, grammar[i] + 2);
+            printf("%c' -> %s'%c | ε\n", newNonTerminal, grammar[i] + 2, newNonTerminal);
+        }
+    }
+}
+
+void leftFactoring(char grammar[MAX_PRODUCTIONS][MAX_LENGTH], int numProds) {
+    for (int i = 0; i < numProds; i++) {
+        char *prod = grammar[i] + 2;
+        if (prod[0] == prod[1]) {
+            printf("%c -> %c'%c\n", grammar[i][0], prod[0], grammar[i][2]);
+        }
+    }
+}
+
+int main() {
+    int numProds;
+    char grammar[MAX_PRODUCTIONS][MAX_LENGTH];
+
+    printf("Enter number of productions: ");
+    scanf("%d", &numProds);
+    getchar(); // Consume newline
+
+    for (int i = 0; i < numProds; i++) {
+        printf("Production %d: ", i + 1);
+        fgets(grammar[i], MAX_LENGTH, stdin);
+        grammar[i][strcspn(grammar[i], "\n")] = 0;  // Remove newline
+    }
+
+    eliminateLeftRecursion(grammar, numProds);
+    leftFactoring(grammar, numProds);
+
+    return 0;
+}
