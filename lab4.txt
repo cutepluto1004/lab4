@@ -1,46 +1,51 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
-#define MAX_PRODUCTIONS 10
-#define MAX_LENGTH 50
+#define MAX 10
 
-void eliminateLeftRecursion(char grammar[MAX_PRODUCTIONS][MAX_LENGTH], int numProds) {
-    for (int i = 0; i < numProds; i++) {
-        char nonTerminal = grammar[i][0];
-        int isLeftRecursive = (grammar[i][2] == nonTerminal);
-        if (isLeftRecursive) {
-            char newNonTerminal = nonTerminal + '1';
-            printf("%c -> %s' | ε\n", nonTerminal, grammar[i] + 2);
-            printf("%c' -> %s'%c | ε\n", newNonTerminal, grammar[i] + 2, newNonTerminal);
-        }
-    }
+void removeLeftRecursion(char nonTerminal, char alpha[], char beta[]) {
+    char newNonTerminal = nonTerminal + 'A' - 'A' + 1; // New non-terminal
+    printf("%c -> %s%c'\n", nonTerminal, beta, newNonTerminal);
+    printf("%c' -> %s%c' | ε\n", newNonTerminal, alpha, newNonTerminal);
 }
 
-void leftFactoring(char grammar[MAX_PRODUCTIONS][MAX_LENGTH], int numProds) {
-    for (int i = 0; i < numProds; i++) {
-        char *prod = grammar[i] + 2;
-        if (prod[0] == prod[1]) {
-            printf("%c -> %c'%c\n", grammar[i][0], prod[0], grammar[i][2]);
-        }
-    }
+void leftFactoring(char nonTerminal, char common[], char remaining1[], char remaining2[]) {
+    char newNonTerminal = nonTerminal + 'A' - 'A' + 1; // New non-terminal
+    printf("%c -> %s%c'\n", nonTerminal, common, newNonTerminal);
+    printf("%c' -> %s | %s\n", newNonTerminal, remaining1, remaining2);
 }
 
 int main() {
-    int numProds;
-    char grammar[MAX_PRODUCTIONS][MAX_LENGTH];
+    int choice;
+    char nonTerminal, alpha[MAX], beta[MAX], common[MAX], remaining1[MAX], remaining2[MAX];
 
-    printf("Enter number of productions: ");
-    scanf("%d", &numProds);
-    getchar(); // Consume newline
+    while (1) {
+        printf("\nChoose an operation:\n1. Remove Left Recursion\n2. Perform Left Factoring\n3. Exit\nChoice: ");
+        scanf("%d", &choice);
+        if (choice == 3) break;
 
-    for (int i = 0; i < numProds; i++) {
-        printf("Production %d: ", i + 1);
-        fgets(grammar[i], MAX_LENGTH, stdin);
-        grammar[i][strcspn(grammar[i], "\n")] = 0;  // Remove newline
+        printf("Enter Non-Terminal: ");
+        scanf(" %c", &nonTerminal);
+
+        if (choice == 1) {
+            printf("Enter α (recursive part): ");
+            scanf("%s", alpha);
+            printf("Enter β (non-recursive part): ");
+            scanf("%s", beta);
+            removeLeftRecursion(nonTerminal, alpha, beta);
+        } else if (choice == 2) {
+            printf("Enter common prefix: ");
+            scanf("%s", common);
+            printf("Enter first remaining part: ");
+            scanf("%s", remaining1);
+            printf("Enter second remaining part: ");
+            scanf("%s", remaining2);
+            leftFactoring(nonTerminal, common, remaining1, remaining2);
+        } else {
+            printf("Invalid choice!\n");
+        }
     }
-
-    eliminateLeftRecursion(grammar, numProds);
-    leftFactoring(grammar, numProds);
 
     return 0;
 }
